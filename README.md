@@ -15,3 +15,7 @@ The source shows the vulnerable callback path: the probe's `receive` function ca
 This is a narrow code-reading lab, not an audit or a complete reentrancy defense. Reentrancy can involve other state and other contracts; the Solidity documentation discusses the broader risk and checks-effects-interactions pattern: https://docs.soliditylang.org/en/latest/security-considerations.html#reentrancy
 
 AI-assisted initial draft. Review, run locally, and make changes you understand before presenting it as your work.
+
+## What I learned
+
+The vulnerable vault sends ETH before clearing the caller’s recorded balance. A receiving contract can call `withdraw()` again during that transfer, while the old balance is still recorded. The checks-effects-interactions version clears the balance first, so this callback cannot withdraw that same balance again.
