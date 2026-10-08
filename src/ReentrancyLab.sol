@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
+interface IVault {
+    function deposit() external payable;
+    function withdraw() external;
+}
+
 /// @dev Intentionally vulnerable teaching example. Never deploy with funds.
 contract VulnerableVault {
     mapping(address => uint256) public balances;
@@ -39,10 +44,10 @@ contract ChecksEffectsVault {
 
 /// @dev Example receiver that re-enters a vault while funds remain.
 contract ReentrancyProbe {
-    VulnerableVault public immutable vault;
+    IVault public immutable vault;
     uint256 private amount;
 
-    constructor(VulnerableVault target) {
+    constructor(IVault target) {
         vault = target;
     }
 
@@ -55,7 +60,7 @@ contract ReentrancyProbe {
 
     receive() external payable {
         if (address(vault).balance >= amount) {
-            vault.withdraw();
+            try vault.withdraw() {} catch {}
         }
     }
 }

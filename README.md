@@ -8,6 +8,7 @@ Install [Foundry](https://book.getfoundry.sh/getting-started/installation), then
 
 ```sh
 forge build
+forge test -vv
 ```
 
 The source shows the vulnerable callback path: the probe's `receive` function calls `withdraw` again while the original balance is still recorded. In `ChecksEffectsVault`, the balance is cleared before control passes to the receiver, so another withdrawal has no available balance.
@@ -19,3 +20,5 @@ AI-assisted initial draft. Review, run locally, and make changes you understand 
 ## What I learned
 
 The vulnerable vault sends ETH before clearing the caller’s recorded balance. A receiving contract can call `withdraw()` again during that transfer, while the old balance is still recorded. The checks-effects-interactions version clears the balance first, so this callback cannot withdraw that same balance again.
+
+The tests assert that the probe drains the vulnerable vault and that the checks-effects-interactions version retains the victim's 5 ETH deposit after the probe withdraws its own 1 ETH.
